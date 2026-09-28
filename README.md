@@ -12,9 +12,11 @@ lance sur les Android récents.
 |---|---|
 | Android 14 et plus refusent d'installer une application qui vise une version trop ancienne (ici targetSdk 17) | Version visée passée à **24** (au-dessus du minimum exigé par Android 14/15, sous les seuils qui ajoutent d'autres restrictions) |
 | Les 18 bibliothèques natives Apportable contiennent des « text relocations », refusées par le chargeur d'Android dès que la version visée est ≥ 23 | Retrait du marqueur `DT_TEXTREL`/`DF_TEXTREL` et segment de code rendu modifiable pendant le chargement (`patch/patch_elf.py`) |
+| `libverde.so` déclarait ses dépendances avec des chemins de compilation (`Build/android-armeabi-release/v/libv.so`), introuvables pour une application qui vise Android 6 ou plus. Le jeu se fermait juste après l'écran de démarrage | Les références pointent sur le nom seul (`libv.so`) (`patch/patch_elf.py`) |
 | Le son chargeait `/system/lib/libOpenSLES.so` par son chemin absolu, bloqué depuis Android 7 | Chargement par nom (`libOpenSLES.so`) |
 | Certains téléphones récents n'acceptent plus le dossier `lib/armeabi` | Bibliothèques placées dans `lib/armeabi-v7a`, et `apportable.abi_list=armv7a` pour que le chargeur Apportable les trouve |
 | Liaisons de services implicites (achats intégrés, licence, Google Play Services) : plantage dès que la version visée est ≥ 21 | Ajout de `setPackage(...)` (`patch/patch_smali.py`) |
+| En cas d'échec de chargement, le moteur fermait le jeu sans rien afficher | Une fenêtre « Erreur de chargement » affiche le message exact (`patch/smali/.../LoadErrorDialog.smali`) |
 | Signature v1 de 2013 | Nouvelle signature v1, v2 et v3 après zipalign |
 
 ## Installation

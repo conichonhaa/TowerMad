@@ -1,4 +1,4 @@
-import sys
+import os, shutil, sys
 S=sys.argv[1] + '/smali/'
 INIT='Landroid/content/Intent;-><init>(Ljava/lang/String;)V'
 # (file, intent reg, action reg in init, scratch reg, package, occurrence index)
@@ -14,3 +14,13 @@ for f,ir,ar,sr,pkg in P:
     assert t.count(old)==1,(f,old,t.count(old))
     new=old+'\n    const-string %s, "%s"\n\n    invoke-virtual {%s, %s}, Landroid/content/Intent;->setPackage(Ljava/lang/String;)Landroid/content/Intent;\n'%(sr,pkg,ir,sr)
     open(S+f,'w').write(t.replace(old,new)); print('patched',f,ir)
+
+# Library loading failures used to finish() the activity silently: show the error.
+f = S + 'com/apportable/activity/VerdeActivity$3$2.smali'
+t = open(f).read()
+old = '    invoke-virtual {v0}, Lcom/apportable/activity/VerdeActivity;->finish()V\n'
+assert t.count(old) == 1
+open(f, 'w').write(t.replace(old, '    invoke-static {v0, p1}, Lcom/apportable/LoadErrorDialog;->show(Landroid/app/Activity;Ljava/lang/Throwable;)V\n'))
+shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'smali/com/apportable/LoadErrorDialog.smali'),
+            S + 'com/apportable/LoadErrorDialog.smali')
+print('patched load error dialog')
