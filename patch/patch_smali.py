@@ -43,3 +43,22 @@ if t.count(old) == 1:
     print('patched IabHelper null billing intent')
 else:
     print('skip IabHelper null billing intent (not in this version)')
+
+# BillingService.bindToMarketBillingService(): the Market billing v2 service no
+# longer exists. In 1.22 createExplicitIntent() then returns null and
+# bindService(null) throws a NullPointerException; any version may also get an
+# IllegalArgumentException. Take the existing "Could not bind" path on null,
+# and catch every RuntimeException instead of only SecurityException.
+f = S + 'com/apportable/iap/BillingService.smali'
+t = open(f).read()
+old = ('    invoke-static {p0, v1}, Lcom/apportable/iab/IabHelper;->createExplicitIntent'
+       '(Landroid/content/Context;Landroid/content/Intent;)Landroid/content/Intent;\n\n'
+       '    move-result-object v1\n')
+if t.count(old) == 1:
+    t = t.replace(old, old + '\n    if-eqz v1, :cond_0\n')
+    print('patched BillingService null billing intent')
+old = '    .catch Ljava/lang/SecurityException; {:try_start_0 .. :try_end_0} :catch_0\n'
+assert t.count(old) == 1
+t = t.replace(old, old.replace('SecurityException', 'RuntimeException'))
+open(f, 'w').write(t)
+print('patched BillingService catch RuntimeException')
