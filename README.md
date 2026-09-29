@@ -2,11 +2,15 @@
 
 | Version | APK à installer | Original |
 |---|---|---|
-| **1.22** (2015, recommandée) | `release/TowerMadness-v1.22-android-moderne.apk` | `original/towermadness-v1-22.apk` |
-| 1.0 (2013) | `release/TowerMadness-v1.0-android-moderne.apk` | `original/towermadness-v1-0.apk` |
+| **1.22** (2015, recommandée) | `release/TowerMadness-v1.22-moderne-r4.apk` | `original/towermadness-v1-22.apk` |
+| 1.0 (2013) | `release/TowerMadness-v1.0-moderne-r4.apk` | `original/towermadness-v1-0.apk` |
 
-Les deux APK utilisent le même nom de paquet et la même signature : installer
-l'une remplace l'autre.
+Les deux APK utilisent le même nom de paquet et la même signature. La 1.22
+remplace la 1.0 à l'installation ; pour revenir à la 1.0, désinstallez d'abord
+la 1.22 (Android refuse les rétrogradations).
+
+Chaque reconstruction publiée porte un numéro `-moderne-rN` (nom du fichier et
+version affichée dans Paramètres → Applications) et un versionCode plus élevé.
 
 Le gameplay, les graphismes, les sons et les ressources sont ceux d'origine.
 Seules les couches techniques ont été modifiées pour que le jeu s'installe et se
@@ -30,7 +34,7 @@ lance sur les Android récents.
 
 1. **Désinstaller l'ancienne version** du jeu : la signature a changé, donc
    l'installation par-dessus échoue.
-2. Installer `release/TowerMadness-v1.0-android-moderne.apk`, en autorisant les
+2. Installer `release/TowerMadness-v1.0-moderne-r4.apk`, en autorisant les
    « sources inconnues ».
 
 ## Limite : téléphones sans support 32 bits
@@ -46,7 +50,7 @@ Android affiche « application non compatible ».
 ```
 export APKTOOL=/chemin/apktool.jar SIGNER=/chemin/uber-apk-signer.jar
 ./build.sh                                   # version 1.22
-./build.sh original/towermadness-v1-0.apk release/TowerMadness-v1.0-android-moderne.apk
+./build.sh original/towermadness-v1-0.apk release/TowerMadness-v1.0-moderne-r4.apk
 ```
 
 Les correctifs Java sautent automatiquement ce qui est déjà correct dans une

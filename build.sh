@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Rebuilds a modern-Android APK from an original one.
 # Usage: ./build.sh [original.apk] [output.apk]
-#   default: original/towermadness-v1-22.apk -> release/TowerMadness-v1.22-android-moderne.apk
+#   default: original/towermadness-v1-22.apk -> release/TowerMadness-v1.22-moderne-r<REV>.apk
 # Needs: java, python3, apktool.jar and uber-apk-signer.jar (paths below).
 set -euo pipefail
 cd "$(dirname "$0")"
 APKTOOL=${APKTOOL:-apktool.jar}
 SIGNER=${SIGNER:-uber-apk-signer.jar}
-REV=3  # bump for every published rebuild; shown as versionName "<orig>-moderne-r<REV>"
+REV=4  # bump for every published rebuild; shown as versionName "<orig>-moderne-r<REV>"
 IN=${1:-original/towermadness-v1-22.apk}
-OUT=${2:-release/TowerMadness-v1.22-android-moderne.apk}
+OUT=${2:-release/TowerMadness-v1.22-moderne-r$REV.apk}
 W=$(mktemp -d)
 
 java -jar "$APKTOOL" d -f -o "$W/dec" "$IN"
@@ -33,6 +33,9 @@ fi
 sed -i "s/targetSdkVersion: '\?17'\?/targetSdkVersion: 24/" "$W/dec/apktool.yml"
 sed -i "s/^\(  versionName: \)'\?\([0-9.]*\)'\?$/\1\2-moderne-r$REV/" "$W/dec/apktool.yml"
 grep -q "versionName: .*-moderne-r$REV" "$W/dec/apktool.yml"
+# Higher versionCode so the installer always replaces a previous rebuild
+VC=$(sed -n "s/^  versionCode: '\?\([0-9]*\)'\?$/\1/p" "$W/dec/apktool.yml")
+sed -i "s/^  versionCode: .*/  versionCode: $((VC + REV))/" "$W/dec/apktool.yml"
 sed -i 's#android:name="apportable.abi_list" android:value=""#android:name="apportable.abi_list" android:value="armv7a"#' \
   "$W/dec/AndroidManifest.xml"
 
