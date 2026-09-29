@@ -34,7 +34,7 @@ lance sur les Android récents.
 
 1. **Désinstaller l'ancienne version** du jeu : la signature a changé, donc
    l'installation par-dessus échoue.
-2. Installer `release/TowerMadness-v1.0-moderne-r4.apk`, en autorisant les
+2. Installer `release/TowerMadness-v1.22-moderne-r4.apk`, en autorisant les
    « sources inconnues ».
 
 ## Limite : téléphones sans support 32 bits
