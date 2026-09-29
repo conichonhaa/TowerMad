@@ -9,8 +9,12 @@ P=[('com/apportable/iap/BillingService.smali','v1','v2','v2','com.android.vendin
    ('com/google/android/vending/licensing/LicenseChecker.smali','v2','v3','v3','com.android.vending'),
    ('com/android/vending/licensing/LicenseChecker.smali','v2','v3','v3','com.android.vending')]
 for f,ir,ar,sr,pkg in P:
+    if not os.path.exists(S+f):
+        print('skip (absent)',f); continue
     t=open(S+f).read()
     old='    invoke-direct {%s, %s}, %s\n'%(ir,ar,INIT)
+    if t.count(old)==0:
+        print('skip (already explicit in this version)',f); continue
     assert t.count(old)==1,(f,old,t.count(old))
     new=old+'\n    const-string %s, "%s"\n\n    invoke-virtual {%s, %s}, Landroid/content/Intent;->setPackage(Ljava/lang/String;)Landroid/content/Intent;\n'%(sr,pkg,ir,sr)
     open(S+f,'w').write(t.replace(old,new)); print('patched',f,ir)

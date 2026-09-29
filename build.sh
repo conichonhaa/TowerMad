@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-# Rebuilds release/TowerMadness-v1.0-android-moderne.apk from original/.
+# Rebuilds a modern-Android APK from an original one.
+# Usage: ./build.sh [original.apk] [output.apk]
+#   default: original/towermadness-v1-22.apk -> release/TowerMadness-v1.22-android-moderne.apk
 # Needs: java, python3, apktool.jar and uber-apk-signer.jar (paths below).
 set -euo pipefail
 cd "$(dirname "$0")"
 APKTOOL=${APKTOOL:-apktool.jar}
 SIGNER=${SIGNER:-uber-apk-signer.jar}
+IN=${1:-original/towermadness-v1-22.apk}
+OUT=${2:-release/TowerMadness-v1.22-android-moderne.apk}
 W=$(mktemp -d)
 
-java -jar "$APKTOOL" d -f -o "$W/dec" original/towermadness-v1-0.apk
+java -jar "$APKTOOL" d -f -o "$W/dec" "$IN"
 
 # Java: make implicit service intents explicit (required when targetSdk >= 21)
 python3 patch/patch_smali.py "$W/dec"
@@ -26,6 +30,6 @@ sed -i 's#android:name="apportable.abi_list" android:value=""#android:name="appo
 java -jar "$APKTOOL" b "$W/dec" -o "$W/unsigned.apk"
 java -jar "$SIGNER" -a "$W/unsigned.apk" -o "$W/signed" \
   --ks patch/towermadness.jks --ksAlias towermadness --ksPass towermadness --ksKeyPass towermadness
-mkdir -p release
-cp "$W/signed/unsigned-aligned-signed.apk" release/TowerMadness-v1.0-android-moderne.apk
-echo "OK: release/TowerMadness-v1.0-android-moderne.apk"
+mkdir -p "$(dirname "$OUT")"
+cp "$W/signed/unsigned-aligned-signed.apk" "$OUT"
+echo "OK: $OUT"
