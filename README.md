@@ -23,7 +23,7 @@ lance sur les Android récents.
 | Le son chargeait `/system/lib/libOpenSLES.so` par son chemin absolu, bloqué depuis Android 7 | Chargement par nom (`libOpenSLES.so`) |
 | Certains téléphones récents n'acceptent plus le dossier `lib/armeabi` | Bibliothèques placées dans `lib/armeabi-v7a`, et `apportable.abi_list=armv7a` pour que le chargeur Apportable les trouve |
 | Liaisons de services implicites (achats intégrés, licence, Google Play Services) : plantage dès que la version visée est ≥ 21 | Ajout de `setPackage(...)` (`patch/patch_smali.py`) |
-| En cas d'échec de chargement, le moteur fermait le jeu sans rien afficher | Une fenêtre « Erreur de chargement » affiche le message exact (`patch/smali/.../LoadErrorDialog.smali`) |
+| En cas d'échec de chargement, le moteur fermait le jeu sans rien afficher | Une fenêtre « Erreur de chargement » affiche le message exact (texte sélectionnable, bouton « Copier »), la version installée (`…-moderne-rN`), la version d'Android et les bibliothèques présentes (`patch/smali/.../LoadErrorDialog.smali`) |
 | Signature v1 de 2013 | Nouvelle signature v1, v2 et v3 après zipalign |
 
 ## Installation

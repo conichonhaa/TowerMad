@@ -7,6 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 APKTOOL=${APKTOOL:-apktool.jar}
 SIGNER=${SIGNER:-uber-apk-signer.jar}
+REV=3  # bump for every published rebuild; shown as versionName "<orig>-moderne-r<REV>"
 IN=${1:-original/towermadness-v1-22.apk}
 OUT=${2:-release/TowerMadness-v1.22-android-moderne.apk}
 W=$(mktemp -d)
@@ -30,6 +31,8 @@ fi
 
 # Manifest: targetSdk 24 (installable on Android 14+), tell Apportable to use armeabi-v7a
 sed -i "s/targetSdkVersion: '\?17'\?/targetSdkVersion: 24/" "$W/dec/apktool.yml"
+sed -i "s/^\(  versionName: \)'\?\([0-9.]*\)'\?$/\1\2-moderne-r$REV/" "$W/dec/apktool.yml"
+grep -q "versionName: .*-moderne-r$REV" "$W/dec/apktool.yml"
 sed -i 's#android:name="apportable.abi_list" android:value=""#android:name="apportable.abi_list" android:value="armv7a"#' \
   "$W/dec/AndroidManifest.xml"
 
