@@ -5,6 +5,11 @@ import struct, sys
 DT_NULL, DT_NEEDED, DT_STRTAB, DT_SYMBOLIC, DT_TEXTREL, DT_FLAGS = 0, 1, 5, 16, 22, 30
 DF_TEXTREL = 0x4
 PT_LOAD, PT_DYNAMIC, PF_X, PF_W = 1, 2, 1, 2
+# Bundled libs whose name collides with a public Android library: without a
+# DT_SONAME, the dependents would bind to the (already loaded) system copy.
+# The new name must end with the old one so it can be written over the unused
+# build-path prefix of the same DT_NEEDED string.
+RENAME = {b'libicu.so': b'libapportable_libicu.so'}
 
 def patch(path):
     b = bytearray(open(path, 'rb').read())
@@ -40,11 +45,15 @@ def patch(path):
             # Build-tree paths ("Build/.../libv.so") are only reduced to their
             # basename by the linker for targetSdk < 23; point at the basename,
             # which is already the tail of the same string.
-            name = bytes(b[strtab + val:b.index(0, strtab + val)])
-            if b'/' in name:
-                cut = name.rindex(b'/') + 1
-                struct.pack_into('<iI', b, o, DT_NEEDED, val + cut)
-                changed.append('NEEDED ' + name[cut:].decode())
+            end = b.index(0, strtab + val)
+            name = bytes(b[strtab + val:end])
+            base = name[name.rfind(b'/') + 1:]
+            new = RENAME.get(base, base)
+            if new != name:
+                assert new.endswith(base) and len(new) <= len(name), (name, new)
+                b[end - len(new):end] = new
+                struct.pack_into('<iI', b, o, DT_NEEDED, end - len(new) - strtab)
+                changed.append('NEEDED ' + new.decode())
         elif tag == DT_TEXTREL:
             struct.pack_into('<iI', b, o, DT_SYMBOLIC, 0)
             changed.append('DT_TEXTREL->DT_SYMBOLIC')

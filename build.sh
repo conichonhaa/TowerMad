@@ -21,6 +21,12 @@ mkdir -p "$W/dec/lib/armeabi-v7a"
 mv "$W/dec/lib/armeabi/"*.so "$W/dec/lib/armeabi-v7a/"
 rmdir "$W/dec/lib/armeabi"
 python3 patch/patch_elf.py "$W/dec/lib/armeabi-v7a/"*.so
+# 1.22 bundles its own ICU: rename it so it does not collide with Android's libicu.so
+if [ -f "$W/dec/lib/armeabi-v7a/libicu.so" ]; then
+  mv "$W/dec/lib/armeabi-v7a/libicu.so" "$W/dec/lib/armeabi-v7a/libapportable_libicu.so"
+  sed -i 's#\(android:name="android.app.libs" android:value="[^"]*\) icu #\1 apportable_libicu #' "$W/dec/AndroidManifest.xml"
+  grep -q ' apportable_libicu ' "$W/dec/AndroidManifest.xml"
+fi
 
 # Manifest: targetSdk 24 (installable on Android 14+), tell Apportable to use armeabi-v7a
 sed -i "s/targetSdkVersion: '\?17'\?/targetSdkVersion: 24/" "$W/dec/apktool.yml"
