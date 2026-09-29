@@ -2,8 +2,8 @@
 
 | Version | APK à installer | Original |
 |---|---|---|
-| **1.22** (2015, recommandée) | `release/TowerMadness-v1.22-moderne-r4.apk` | `original/towermadness-v1-22.apk` |
-| 1.0 (2013) | `release/TowerMadness-v1.0-moderne-r4.apk` | `original/towermadness-v1-0.apk` |
+| **1.22** (2015, recommandée) | `release/TowerMadness-v1.22-moderne-r5.apk` | `original/towermadness-v1-22.apk` |
+| 1.0 (2013) | `release/TowerMadness-v1.0-moderne-r5.apk` | `original/towermadness-v1-0.apk` |
 
 Les deux APK utilisent le même nom de paquet et la même signature. La 1.22
 remplace la 1.0 à l'installation ; pour revenir à la 1.0, désinstallez d'abord
@@ -24,6 +24,7 @@ lance sur les Android récents.
 | Les 18 bibliothèques natives Apportable contiennent des « text relocations », refusées par le chargeur d'Android dès que la version visée est ≥ 23 | Retrait du marqueur `DT_TEXTREL`/`DF_TEXTREL` et segment de code rendu modifiable pendant le chargement (`patch/patch_elf.py`) |
 | Les bibliothèques déclaraient leurs dépendances avec des chemins de compilation (`Build/android-armeabi-release/v/libv.so` en 1.0, `/build/towermadness-arm-android/.../libv.so` dans toutes les bibliothèques en 1.22), introuvables pour une application qui vise Android 6 ou plus. Le jeu se fermait juste après l'écran de démarrage | Les références pointent sur le nom seul (`libv.so`) (`patch/patch_elf.py`) |
 | La 1.22 embarque sa propre ICU `libicu.so` (version 50). Depuis Android 12, Android fournit aussi une `libicu.so` publique, et le jeu se liait à celle-ci (`cannot locate symbol "UCNV_FROM_U_CALLBACK_STOP_50"`) | La bibliothèque du jeu est renommée `libapportable_libicu.so` (fichier, dépendances, liste `android.app.libs`) |
+| 1.22 : l'initialisation des achats intégrés cherche un service au nom mal orthographié (`InAppBillingService.BINN`), obtient `null` et plante (`NullPointerException` dans `IabHelper.startSetup`) | Un résultat `null` est traité comme « service de paiement indisponible » |
 | Le son chargeait `/system/lib/libOpenSLES.so` par son chemin absolu, bloqué depuis Android 7 | Chargement par nom (`libOpenSLES.so`) |
 | Certains téléphones récents n'acceptent plus le dossier `lib/armeabi` | Bibliothèques placées dans `lib/armeabi-v7a`, et `apportable.abi_list=armv7a` pour que le chargeur Apportable les trouve |
 | Liaisons de services implicites (achats intégrés, licence, Google Play Services) : plantage dès que la version visée est ≥ 21 | Ajout de `setPackage(...)` (`patch/patch_smali.py`) |
@@ -34,7 +35,7 @@ lance sur les Android récents.
 
 1. **Désinstaller l'ancienne version** du jeu : la signature a changé, donc
    l'installation par-dessus échoue.
-2. Installer `release/TowerMadness-v1.22-moderne-r4.apk`, en autorisant les
+2. Installer `release/TowerMadness-v1.22-moderne-r5.apk`, en autorisant les
    « sources inconnues ».
 
 ## Limite : téléphones sans support 32 bits
@@ -50,7 +51,7 @@ Android affiche « application non compatible ».
 ```
 export APKTOOL=/chemin/apktool.jar SIGNER=/chemin/uber-apk-signer.jar
 ./build.sh                                   # version 1.22
-./build.sh original/towermadness-v1-0.apk release/TowerMadness-v1.0-moderne-r4.apk
+./build.sh original/towermadness-v1-0.apk release/TowerMadness-v1.0-moderne-r5.apk
 ```
 
 Les correctifs Java sautent automatiquement ce qui est déjà correct dans une

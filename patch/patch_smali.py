@@ -28,3 +28,18 @@ open(f, 'w').write(t.replace(old, '    invoke-static {v0, p1}, Lcom/apportable/L
 shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'smali/com/apportable/LoadErrorDialog.smali'),
             S + 'com/apportable/LoadErrorDialog.smali')
 print('patched load error dialog')
+
+# 1.22: IabHelper.startSetup() resolves a misspelled billing action
+# ("...InAppBillingService.BINN"), so createExplicitIntent() returns null and
+# queryIntentServices(null) throws a NullPointerException on modern Android.
+# Treat a null intent as "billing service unavailable" (the existing :cond_2 path).
+f = S + 'com/apportable/iab/IabHelper.smali'
+t = open(f).read()
+old = ('    invoke-static {v0, v1}, Lcom/apportable/iab/IabHelper;->createExplicitIntent'
+       '(Landroid/content/Context;Landroid/content/Intent;)Landroid/content/Intent;\n\n'
+       '    move-result-object v0\n')
+if t.count(old) == 1:
+    open(f, 'w').write(t.replace(old, old + '\n    if-eqz v0, :cond_2\n'))
+    print('patched IabHelper null billing intent')
+else:
+    print('skip IabHelper null billing intent (not in this version)')

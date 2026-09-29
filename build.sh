@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 APKTOOL=${APKTOOL:-apktool.jar}
 SIGNER=${SIGNER:-uber-apk-signer.jar}
-REV=4  # bump for every published rebuild; shown as versionName "<orig>-moderne-r<REV>"
+REV=5  # bump for every published rebuild; shown as versionName "<orig>-moderne-r<REV>"
 IN=${1:-original/towermadness-v1-22.apk}
 OUT=${2:-release/TowerMadness-v1.22-moderne-r$REV.apk}
 W=$(mktemp -d)
